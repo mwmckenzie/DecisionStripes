@@ -52,7 +52,7 @@ function GenerateIrGroup(levels = 2, maxChildCount = 3, thresholdAvg = 0.8){
     
     function GenerateIrNode(rootNode, maxChildCount) {
         
-        const childCount = Math.floor(Math.random() * maxChildCount + 1) * (rootNode.level + 3);
+        const childCount = Math.floor(Math.random() * maxChildCount + 1) * (rootNode.level + 2);
         
         for (let i = 0; i < childCount; i++){
             const childLevel = rootNode.level + 1;

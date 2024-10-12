@@ -80,7 +80,7 @@
         //         .attr("y2", marginTop);
         // }
         
-        const irGroup = GenerateIrGroup(3, 3, .95);
+        const irGroup = GenerateIrGroup(3, 4, .97);
         Debug(irGroup, Object.keys({irGroup})[0])
 
         const collapsedGroup = CollapseIrGroup(irGroup);
@@ -170,7 +170,7 @@
                     
                     div.html(plotItem.displayName)
                         .style("left", tooltipPos[0] + "px")
-                        .style("top", (tooltipPos[1] + 75) + "px");
+                        .style("top", (tooltipPos[1] + 90) + "px");
                 })
                 .on('mouseout', function (d, i) {
                     d3.select(this).transition()
