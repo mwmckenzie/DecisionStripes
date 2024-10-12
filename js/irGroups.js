@@ -5,6 +5,7 @@ function CreateNode(level = 0, threshold = false){
         level: level,
         threshold: threshold, 
         size: 1,
+        displayName: "1",
         children: [] 
     };
 }
@@ -51,11 +52,13 @@ function GenerateIrGroup(levels = 2, maxChildCount = 3, thresholdAvg = 0.8){
     
     function GenerateIrNode(rootNode, maxChildCount) {
         
-        const childCount = Math.floor(Math.random() * maxChildCount + 1);
+        const childCount = Math.floor(Math.random() * maxChildCount + 1) * (rootNode.level + 3);
         
         for (let i = 0; i < childCount; i++){
             const childLevel = rootNode.level + 1;
+            
             let childNode = CreateNode(childLevel);
+            childNode.displayName = rootNode.displayName + "." + (i + 1);
             if (childLevel < levels){
                 childNode = GenerateIrNode(childNode, maxChildCount);
             }

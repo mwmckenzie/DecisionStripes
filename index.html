@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Decision Stripes</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/custom.css">
 </head>
 
 <body>
@@ -19,9 +21,9 @@
         // Declare the chart dimensions and margins.
         const width = 800;
         const height = 400;
-        const marginTop = 20;
+        const marginTop = 50;
         const marginRight = 20;
-        const marginBottom = 30;
+        const marginBottom = 50;
         const marginLeft = 40;
 
         // Declare the x (horizontal position) scale.
@@ -78,7 +80,7 @@
         //         .attr("y2", marginTop);
         // }
         
-        const irGroup = GenerateIrGroup(5, 5, .9);
+        const irGroup = GenerateIrGroup(3, 3, .95);
         Debug(irGroup, Object.keys({irGroup})[0])
 
         const collapsedGroup = CollapseIrGroup(irGroup);
@@ -97,10 +99,14 @@
 
         const colorOptions = ["lightgreen", "red"];
         let currX = marginLeft;
-        const spacing = .5;
+        const spacing = 0;
+        const verticalScaling = .05;
         const totalSize = GetTotalSize(plotList);
         const canvasWidth = width - marginRight - marginLeft - spacing * plotList.length;
         const scaler =  canvasWidth / totalSize;
+        
+        const vertAnimScaleY1 = height - marginBottom * verticalScaling;
+        const vertAnimScaleY2 = marginBottom * verticalScaling;
 
         // Declare the x (horizontal position) scale.
         const x = d3.scaleLinear()
@@ -127,10 +133,16 @@
         //     .attr("transform", `translate(${marginLeft},0)`)
         //     .call(d3.axisLeft(y));
         
+        var div = d3.select("body").append("div")
+            .attr("class", "tooltip-stripe")
+            .style("position", "absolute")
+            .style("opacity", 0);
+        
         for (let i = 0; i < plotList.length; i++) {
 
             let plotItem = plotList[i];
             const itemWidth = plotItem.size * scaler;
+            const tooltipPos = [currX, height - marginBottom];
             
             // Append a path for the line.
             svg.append('line')
@@ -139,7 +151,40 @@
                 .attr("x1", currX + itemWidth / 2)
                 .attr("y1", height - marginBottom)
                 .attr("x2", currX + itemWidth / 2)
-                .attr("y2", marginTop);
+                .attr("y2", marginTop)
+                .on('mouseover', function (d, i) {
+                    d3.select(this).transition()
+                        .duration(50)
+                        .attr('opacity', '.85')
+                        .attr("y1", height - marginBottom + 10)
+                        .attr("y2", marginTop - 10);
+                    //Makes the new div appear on hover:
+                    div.transition()
+                        .duration(50)
+                        .style("opacity", 1);
+
+                    // var absoluteMousePos = d3.pointer(d);
+                    // div.html(plotItem.displayName)
+                    //     .style("left", (absoluteMousePos[0] + 10) + "px")
+                    //     .style("top", (absoluteMousePos[1] - 15) + "px");
+                    
+                    div.html(plotItem.displayName)
+                        .style("left", tooltipPos[0] + "px")
+                        .style("top", (tooltipPos[1] + 75) + "px");
+                })
+                .on('mouseout', function (d, i) {
+                    d3.select(this).transition()
+                        .duration(50)
+                        .attr('opacity', '1')
+                        .attr("y1", height - marginBottom)
+                        .attr("y2", marginTop);
+                    //Makes the new div disappear:
+                    div.transition()
+                        .duration(50)
+                        .style("opacity", 0);
+                })
+                // .append("svg:title")
+                // .text(plotItem.displayName);
 
             currX += itemWidth + spacing;
         }
