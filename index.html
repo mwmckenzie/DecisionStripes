@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Decision Stripes</title>
+</head>
+
+<body>
+    <h1>Decision Stripes</h1>
+    <div id="container"></div>
+
+    <!--script src="js/bootstrap.js"></script-->
+    <script src="node_modules/d3/dist/d3.js"></script>
+    <script src="js/jsVals.js"></script>
+    <script src="js/irGroups.js"></script>
+
+    <script>
+
+        // Declare the chart dimensions and margins.
+        const width = 800;
+        const height = 400;
+        const marginTop = 20;
+        const marginRight = 20;
+        const marginBottom = 30;
+        const marginLeft = 40;
+
+        // Declare the x (horizontal position) scale.
+        // const x = d3.scaleUtc()
+        //     .domain([new Date("2023-01-01"), new Date("2024-01-01")])
+        //     .range([marginLeft, width - marginRight]);
+
+        // Declare the x (horizontal position) scale.
+        // const x = d3.scaleLinear()
+        //     .domain([0, 100])
+        //     .range([marginLeft, width - marginRight]);
+        //
+        // // Declare the y (vertical position) scale.
+        // const y = d3.scaleLinear()
+        //     .domain([0, 100])
+        //     .range([height - marginBottom, marginTop]);
+
+        // Create the SVG container.
+        // const svg = d3.create("svg")
+        //     .attr(wStr, width)
+        //     .attr(GetH(), height);
+        //
+        // // Add the x-axis.
+        // svg.append("g")
+        //     .attr("transform", `translate(0,${height - marginBottom})`)
+        //     .call(d3.axisBottom(x));
+        //
+        // // Add the y-axis.
+        // svg.append("g")
+        //     .attr("transform", `translate(${marginLeft},0)`)
+        //     .call(d3.axisLeft(y));
+        
+        // Declare the line generator.
+        // const line = d3.line()
+        //     .x(d => d.lon)
+        //     .y(d => d.lat);
+        
+        // const thickness = 3;
+        
+        // for (let i = 0; i < 100; i++) {
+        //    
+        //     var lineData = {"lon" : marginLeft + (i * thickness), "lat" : i }
+        //     var rando = d3.randomInt(2, 0);
+        //    
+        //     //console.log(`Current Rando: ${rando.call()}`);
+        //    
+        //     // Append a path for the line.
+        //     svg.append('line')
+        //         .style("stroke", colorOptions[rando.call()])
+        //         .style("stroke-width", thickness)
+        //         .attr("x1", lineData.lon)
+        //         .attr("y1", height - marginBottom)
+        //         .attr("x2", lineData.lon)
+        //         .attr("y2", marginTop);
+        // }
+        
+        const irGroup = GenerateIrGroup(5, 5, .9);
+        Debug(irGroup, Object.keys({irGroup})[0])
+
+        const collapsedGroup = CollapseIrGroup(irGroup);
+        Debug(collapsedGroup, Object.keys({collapsedGroup})[0])
+        
+        // const collapsedGroupStr = JSON.stringify(collapsedGroup);
+        // console.log(collapsedGroupStr);
+        // localStorage.setItem("collapsedGroup", collapsedGroupStr);
+        
+        const plotList = collapsedGroupToPlotList(collapsedGroup);
+        Debug(plotList, Object.keys({plotList})[0])
+        
+        // const plotListStr = JSON.stringify(plotList);
+        // console.log(plotListStr);
+        // localStorage.setItem("plotList", plotListStr);
+
+        const colorOptions = ["lightgreen", "red"];
+        let currX = marginLeft;
+        const spacing = .5;
+        const totalSize = GetTotalSize(plotList);
+        const canvasWidth = width - marginRight - marginLeft - spacing * plotList.length;
+        const scaler =  canvasWidth / totalSize;
+
+        // Declare the x (horizontal position) scale.
+        const x = d3.scaleLinear()
+            .domain([0, totalSize])
+            .range([marginLeft, width - marginRight]);
+
+        // Declare the y (vertical position) scale.
+        const y = d3.scaleLinear()
+            .domain([0, 1])
+            .range([height - marginBottom, marginTop]);
+
+        // Create the SVG container.
+        const svg = d3.create("svg")
+            .attr(wStr, width)
+            .attr(GetH(), height);
+
+        // Add the x-axis.
+        svg.append("g")
+            .attr("transform", `translate(0,${height - marginBottom})`)
+            .call(d3.axisBottom(x));
+
+        // Add the y-axis.
+        // svg.append("g")
+        //     .attr("transform", `translate(${marginLeft},0)`)
+        //     .call(d3.axisLeft(y));
+        
+        for (let i = 0; i < plotList.length; i++) {
+
+            let plotItem = plotList[i];
+            const itemWidth = plotItem.size * scaler;
+            
+            // Append a path for the line.
+            svg.append('line')
+                .style("stroke", colorOptions[plotItem.threshold ? 0 : 1])
+                .style("stroke-width", plotItem.size * scaler)
+                .attr("x1", currX + itemWidth / 2)
+                .attr("y1", height - marginBottom)
+                .attr("x2", currX + itemWidth / 2)
+                .attr("y2", marginTop);
+
+            currX += itemWidth + spacing;
+        }
+
+        // Append the SVG element.
+        container.append(svg.node());
+
+    </script>
+
+</body>
+
+
+
+
+</html>

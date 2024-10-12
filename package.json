@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "d3": "^7.9.0",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "eslint": "^9.12.0"
+  }
+}
