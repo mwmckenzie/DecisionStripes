@@ -117,10 +117,14 @@
     <!-- End Navbar -->
 
     <div class="container">
-        <div id="container"></div>
+        <div id="containerRoot"></div>
     </div>
-
-    <br/>
+    
+    <div class="container">
+        <div id="containerChild1"></div>
+    </div>
+    
+    
     
     <div class="container mt-3 d-flex flex-row flex-grow-1 justify-content-start column-gap-2">
         <!-- Card Example -->
@@ -153,16 +157,7 @@
 
     <script>
         
-        function CreateRootStripesElem() {
-            
-            // Declare the chart dimensions and margins.
-            const width = 800;
-            const height = 400;
-            const marginTop = 50;
-            const marginRight = 20;
-            const marginBottom = 50;
-            const marginLeft = 5;
-
+        function GeneratePlotList() {
             const debug = false;
 
             const irGroup = GenerateIrGroup(4, 2, .97);
@@ -179,14 +174,45 @@
             if (debug) {
                 Debug(plotList, Object.keys({plotList})[0]);
             }
+            
+            return plotList;
+        }
 
+        function RemoveAllChildren(containerElem) {
+            while (containerElem.childNodes.length > 0){
+                containerElem.removeChild(containerElem.childNodes[0]);
+            }
+        }
+        
+        function GetSiblingPlotList(plotList, parentGroupStr){
+            const siblingPlotList = [];
+            for (let i = 0; i < plotList.length; i++) {
+                const node = plotList[i];
+                if (IsInParentGroup(node, parentGroupStr)) {
+                    siblingPlotList.push(node);
+                }
+            }
+            return siblingPlotList;
+        }
+        
+        function CreateStripesElem(plotList, parentElem, isRoot = false) {
+            
+            // Declare the chart dimensions and margins.
+            const width = 800;
+            const height = 400;
+            const marginTop = 50;
+            const marginRight = 20;
+            const marginBottom = 50;
+            const marginLeft = 5;
+            
             const colorOptions = ["darkblue", "red"];
-            let currX = marginLeft;
             const spacing = -0.1;
             const verticalScaling = .05;
             const totalSize = GetTotalSize(plotList);
             const canvasWidth = width - marginRight - marginLeft - spacing * plotList.length;
             const scaler = canvasWidth / totalSize;
+            
+            let currX = marginLeft;
 
             // Declare the x (horizontal position) scale.
             const x = d3.scaleLinear()
@@ -228,13 +254,26 @@
                 return p.matrixTransform(ctm);
             }
 
+            function getAbsoluteXY(element) {
+                var viewportElement = document.documentElement;
+                var box = element.getBoundingClientRect();
+                var scrollLeft = viewportElement.scrollLeft;
+                var scrollTop = viewportElement.scrollTop;
+                var x = box.left + scrollLeft;
+                var y = box.top + scrollTop;
+                return {"x": x, "y": y}
+            }
+
+            const viewportElem = document.getElementById("containerRoot");
+            const viewPortOffset = getAbsoluteXY(viewportElem)['x'];
+            console.log(`Clicked Absolute Pos: ${JSON.stringify(viewPortOffset)} => ${viewportElem}`)
+
             for (let i = 0; i < plotList.length; i++) {
 
                 let plotItem = plotList[i];
                 const itemWidth = plotItem.size * scaler;
-                const tooltipPos = [currX + itemWidth / 2 + marginLeft + 30, height - marginBottom];
-
-
+                const tooltipPos = [currX + itemWidth / 2 + marginLeft + viewPortOffset - 25, height - marginBottom + 100];
+                
                 // const elemXY = svg.attr("transform").translate;
                 // console.log(`ElemXY: ${JSON.stringify(elemXY)}`)
 
@@ -261,8 +300,8 @@
                             .style("opacity", '1');
 
                         div.html(plotItem.displayName)
-                            .style("left", (tooltipPos[0] + 45) + "px")
-                            .style("top", (tooltipPos[1] + 90) + "px");
+                            .style("left", tooltipPos[0] + "px")
+                            .style("top", tooltipPos[1] + "px");
 
                         tooltipCardTitle.html(plotItem.displayName);
                     })
@@ -277,6 +316,15 @@
                             .duration(50)
                             .style("opacity", 0);
                     })
+                    .on('click', function (event, d, i){
+                        if (isRoot){
+                            const containerChild1 = document.getElementById("containerChild1");
+                            RemoveAllChildren(containerChild1);
+                            const siblingList = GetSiblingPlotList(plotList, plotItem.parentGroup);
+                            CreateStripesElem(siblingList, containerChild1, false)
+                        }
+                        
+                    })
                 // .append("svg:title")
                 // .text(plotItem.displayName);
 
@@ -284,29 +332,28 @@
             }
 
             // Append the SVG element.
-            container.append(svg.node());
+            parentElem.append(svg.node());
 
         }
     </script>
     
     <script>
 
-        function RemoveAllChildren() {
-            const containerElem = document.getElementById("container");
-            
-            while (containerElem.childNodes.length > 0){
-                containerElem.removeChild(containerElem.childNodes[0]);
-            }
+        const containerRoot = document.getElementById("containerRoot");
+        const containerChild1 = document.getElementById("containerChild1");
+        
+        document.getElementById("btnRemoveStripes").onclick = () => {
+            RemoveAllChildren(containerRoot);
+            RemoveAllChildren(containerChild1);
         }
-
-        document.getElementById("btnRemoveStripes").onclick = RemoveAllChildren;
         
         document.getElementById("btnRegenStripes").onclick = () => {
-            RemoveAllChildren();
-            CreateRootStripesElem();
+            RemoveAllChildren(containerRoot);
+            RemoveAllChildren(containerChild1);
+            CreateStripesElem(GeneratePlotList(), containerRoot, true);
         }
         
-        CreateRootStripesElem();
+        CreateStripesElem(GeneratePlotList(), containerRoot, true);
     </script>
 
     <script>

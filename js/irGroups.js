@@ -6,6 +6,7 @@ function CreateNode(level = 0, threshold = false){
         threshold: threshold, 
         size: 1,
         displayName: "1",
+        parentGroup: "0",
         children: [] 
     };
 }
@@ -20,6 +21,10 @@ function CreateRootNode() {
 
 function IsRootNode(node){
     return node.level === 0;
+}
+
+function IsInParentGroup(node, parentGroup){
+    return node.parentGroup.startsWith(parentGroup);
 }
 
 function GetSequenceNum(node){
@@ -58,6 +63,7 @@ function GenerateIrGroup(levels = 2, maxChildCount = 3, thresholdAvg = 0.8){
             const childLevel = rootNode.level + 1;
             
             let childNode = CreateNode(childLevel);
+            childNode.parentGroup = rootNode.displayName;
             childNode.displayName = rootNode.displayName + "." + (i + 1);
             if (childLevel < levels){
                 childNode = GenerateIrNode(childNode, maxChildCount);
