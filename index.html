@@ -2,14 +2,144 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Decision Stripes</title>
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/custom.css">
 </head>
 
 <body>
-    <h1>Decision Stripes</h1>
-    <div id="container"></div>
+
+    <!-- Navbar -->
+    <div class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Decision Stripes</a>
+            <button class="navbar-toggler collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarResponsive"
+                    aria-controls="navbarResponsive"
+                    aria-expanded="false"
+                    aria-label="Toggle Navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse" id="navbarResponsive">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown" data-bs-theme="light">
+                        <a class="nav-link dropdown-toggle" 
+                           data-bs-toggle="dropdown" 
+                           href="#" 
+                           id="home" 
+                           aria-expanded="false">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-md-auto">
+                    <li class="nav-item">
+                        <a target="_blank" rel="noopener" class="nav-link" href="https://github.com/thomaspark/bootswatch/"><i class="bi bi-github"></i><span class="d-lg-none ms-2">GitHub</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a target="_blank" rel="noopener" class="nav-link" href="https://twitter.com/bootswatch"><i class="bi bi-twitter"></i><span class="d-lg-none ms-2">Twitter</span></a>
+                    </li>
+                    <li class="nav-item py-2 py-lg-1 col-12 col-lg-auto">
+                        <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
+                        <hr class="d-lg-none my-2 text-white-50">
+                    </li>
+                    <li class="nav-item dropdown" data-bs-theme="light">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="version-menu" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme">
+                            <span class="d-lg-none me-2">Bootstrap </span>
+                            <span>v5.3</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a href="https://bootswatch.com/" class="dropdown-item d-flex align-items-center justify-content-between" aria-current="true">
+                                    <span class="ms-2">v5.3.x</span><i class="bi bi-check"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://bootswatch.com/4/" class="dropdown-item d-flex align-items-center justify-content-between">
+                                    <span class="ms-2">v4.6.2</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://bootswatch.com/3/" class="dropdown-item d-flex align-items-center justify-content-between">
+                                    <span class="ms-2">v3.4.1</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://bootswatch.com/2/" class="dropdown-item d-flex align-items-center justify-content-between">
+                                    <span class="ms-2">v2.3.2</span>
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a href="https://github.com/thomaspark/bootswatch/tags" class="dropdown-item d-flex align-items-center justify-content-between">
+                                    <span class="ms-2">All versions</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item py-2 py-lg-1 col-12 col-lg-auto">
+                        <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
+                        <hr class="d-lg-none my-2 text-white-50">
+                    </li>
+                    <li class="nav-item dropdown" data-bs-theme="light">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="theme-menu" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme">
+                            <i class="bi bi-circle-half"></i>
+                            <span class="d-lg-none ms-2">Toggle theme</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                                    <i class="bi bi-sun-fill"></i><span class="ms-2">Light</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="true">
+                                    <i class="bi bi-moon-stars-fill"></i><span class="ms-2">Dark</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        
+        
+        
+    </div>
+    <!-- End Navbar -->
+
+    <div class="container">
+        <div id="container"></div>
+    </div>
+
+    <br/>
+    
+    <div class="container mt-3">
+        <!-- Card Example -->
+        <div class="card text-white bg-primary mb-3" style="max-width: 20rem;">
+            <div class="card-header">Decision Space</div>
+            <div class="card-body">
+                <h4 class="card-title" id="tooltipCardTitle">Hover With Mouse To Highight</h4>
+                <p class="card-text">Indicates the Decision Space of the Currently Highlighted Stripe</p>
+            </div>
+        </div>
+    </div>
+    
 
     <script src="js/bootstrap.js"></script>
     <script src="js/d3.v7.js"></script>
@@ -24,7 +154,7 @@
         const marginTop = 50;
         const marginRight = 20;
         const marginBottom = 50;
-        const marginLeft = 40;
+        const marginLeft = 5;
 
         // Declare the x (horizontal position) scale.
         // const x = d3.scaleUtc()
@@ -80,24 +210,32 @@
         //         .attr("y2", marginTop);
         // }
         
+        const debug = false;
+        
         const irGroup = GenerateIrGroup(3, 4, .97);
-        Debug(irGroup, Object.keys({irGroup})[0]);
+        if (debug) {
+            Debug(irGroup, Object.keys({irGroup})[0]);
+        }
 
         const collapsedGroup = CollapseIrGroup(irGroup);
-        Debug(collapsedGroup, Object.keys({collapsedGroup})[0]);
+        if (debug) {
+            Debug(collapsedGroup, Object.keys({collapsedGroup})[0]);
+        }
         
         // const collapsedGroupStr = JSON.stringify(collapsedGroup);
         // console.log(collapsedGroupStr);
         // localStorage.setItem("collapsedGroup", collapsedGroupStr);
         
         const plotList = collapsedGroupToPlotList(collapsedGroup);
-        Debug(plotList, Object.keys({plotList})[0]);
+        if (debug) {
+            Debug(plotList, Object.keys({plotList})[0]);
+        }
         
         // const plotListStr = JSON.stringify(plotList);
         // console.log(plotListStr);
         // localStorage.setItem("plotList", plotListStr);
 
-        const colorOptions = ["lightgreen", "red"];
+        const colorOptions = ["darkblue", "red"];
         let currX = marginLeft;
         const spacing = 0;
         const verticalScaling = .05;
@@ -133,21 +271,29 @@
         //     .attr("transform", `translate(${marginLeft},0)`)
         //     .call(d3.axisLeft(y));
         
-        var div = d3.select("body").append("div")
-            .attr("class", "tooltip-stripe")
+        const div = d3.select("body").append("div")
+            .attr("class", "btn btn-outline-primary")
+            //.style("max-width", "20rem")
             .style("position", "absolute")
             .style("opacity", 0);
+        
+        const tooltipCardTitle = d3.select("#tooltipCardTitle");
+
+        console.log(`tooltipCardTitle: ${JSON.stringify(tooltipCardTitle)}`);
         
         for (let i = 0; i < plotList.length; i++) {
 
             let plotItem = plotList[i];
             const itemWidth = plotItem.size * scaler;
-            const tooltipPos = [currX, height - marginBottom];
+            const tooltipPos = [currX + itemWidth / 2 + marginRight + 30, height - marginBottom];
+            
+            const levelOpacity = 1 - (1 / (plotItem.level + .5));
             
             // Append a path for the line.
             svg.append('line')
                 .style("stroke", colorOptions[plotItem.threshold ? 0 : 1])
                 .style("stroke-width", plotItem.size * scaler)
+                .attr('opacity', levelOpacity)
                 .attr("x1", currX + itemWidth / 2)
                 .attr("y1", height - marginBottom)
                 .attr("x2", currX + itemWidth / 2)
@@ -155,13 +301,13 @@
                 .on('mouseover', function (d, i) {
                     d3.select(this).transition()
                         .duration(50)
-                        .attr('opacity', '.85')
+                        .attr('opacity', 1)
                         .attr("y1", height - marginBottom + 10)
                         .attr("y2", marginTop - 10);
                     //Makes the new div appear on hover:
                     div.transition()
                         .duration(50)
-                        .style("opacity", 1);
+                        .style("opacity", '1');
 
                     // var absoluteMousePos = d3.pointer(d);
                     // div.html(plotItem.displayName)
@@ -171,11 +317,16 @@
                     div.html(plotItem.displayName)
                         .style("left", tooltipPos[0] + "px")
                         .style("top", (tooltipPos[1] + 90) + "px");
+
+                    tooltipCardTitle.html(plotItem.displayName);
+                    
+                    
+                    
                 })
                 .on('mouseout', function (d, i) {
                     d3.select(this).transition()
                         .duration(50)
-                        .attr('opacity', '1')
+                        .attr('opacity', levelOpacity)
                         .attr("y1", height - marginBottom)
                         .attr("y2", marginTop);
                     //Makes the new div disappear:
