@@ -38,18 +38,16 @@
                         <a class="nav-link" href="#">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Services</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="#">Contact</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-md-auto">
                     <li class="nav-item">
-                        <a target="_blank" rel="noopener" class="nav-link" href="https://github.com/thomaspark/bootswatch/"><i class="bi bi-github"></i><span class="d-lg-none ms-2">GitHub</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a target="_blank" rel="noopener" class="nav-link" href="https://twitter.com/bootswatch"><i class="bi bi-twitter"></i><span class="d-lg-none ms-2">Twitter</span></a>
+                        <a target="_blank" rel="noopener" class="nav-link" href="https://github.com/mwmckenzie/DecisionStripes/">
+                            <i class="bi bi-github">
+                            </i>
+                            <span class="d-lg-none ms-2">GitHub</span>
+                        </a>
                     </li>
                     <li class="nav-item py-2 py-lg-1 col-12 col-lg-auto">
                         <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
@@ -57,28 +55,23 @@
                     </li>
                     <li class="nav-item dropdown" data-bs-theme="light">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="version-menu" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme">
-                            <span class="d-lg-none me-2">Bootstrap </span>
-                            <span>v5.3</span>
+                            <span class="d-lg-none me-2">Version </span>
+                            <span>v0.3</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a href="https://bootswatch.com/" class="dropdown-item d-flex align-items-center justify-content-between" aria-current="true">
-                                    <span class="ms-2">v5.3.x</span><i class="bi bi-check"></i>
+                                    <span class="ms-2">v0.3.x</span><i class="bi bi-check"></i>
                                 </a>
                             </li>
                             <li>
                                 <a href="https://bootswatch.com/4/" class="dropdown-item d-flex align-items-center justify-content-between">
-                                    <span class="ms-2">v4.6.2</span>
+                                    <span class="ms-2">v0.2.0</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="https://bootswatch.com/3/" class="dropdown-item d-flex align-items-center justify-content-between">
-                                    <span class="ms-2">v3.4.1</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://bootswatch.com/2/" class="dropdown-item d-flex align-items-center justify-content-between">
-                                    <span class="ms-2">v2.3.2</span>
+                                    <span class="ms-2">v0.1.0</span>
                                 </a>
                             </li>
                             <li>
@@ -129,7 +122,7 @@
 
     <br/>
     
-    <div class="container mt-3">
+    <div class="container mt-3 d-flex flex-row flex-grow-1 justify-content-between">
         <!-- Card Example -->
         <div class="card text-white bg-primary mb-3" style="max-width: 20rem;">
             <div class="card-header">Decision Space</div>
@@ -137,6 +130,18 @@
                 <h4 class="card-title" id="tooltipCardTitle">Hover With Mouse To Highight</h4>
                 <p class="card-text">Indicates the Decision Space of the Currently Highlighted Stripe</p>
             </div>
+        </div>
+        <div class="d-flex flex-column justify-content-start row-gap-2">
+            <button type="button"
+                    id="btnRegenStripes"
+                    class="btn btn-info">
+                Regenerate Stripes
+            </button>
+            <button type="button"
+                    id="btnRemoveStripes"
+                    class="btn btn-danger">
+                Remove Stripes
+            </button>
         </div>
     </div>
     
@@ -147,20 +152,171 @@
     <script src="js/irGroups.js"></script>
 
     <script>
+        
+        function CreateRootStripesElem() {
+            
+            // Declare the chart dimensions and margins.
+            const width = 800;
+            const height = 400;
+            const marginTop = 50;
+            const marginRight = 20;
+            const marginBottom = 50;
+            const marginLeft = 5;
 
-        // Declare the chart dimensions and margins.
-        const width = 800;
-        const height = 400;
-        const marginTop = 50;
-        const marginRight = 20;
-        const marginBottom = 50;
-        const marginLeft = 5;
+            const debug = false;
 
+            const irGroup = GenerateIrGroup(4, 2, .97);
+            if (debug) {
+                Debug(irGroup, Object.keys({irGroup})[0]);
+            }
+
+            const collapsedGroup = CollapseIrGroup(irGroup);
+            if (debug) {
+                Debug(collapsedGroup, Object.keys({collapsedGroup})[0]);
+            }
+
+            const plotList = collapsedGroupToPlotList(collapsedGroup);
+            if (debug) {
+                Debug(plotList, Object.keys({plotList})[0]);
+            }
+
+            const colorOptions = ["darkblue", "red"];
+            let currX = marginLeft;
+            const spacing = -0.1;
+            const verticalScaling = .05;
+            const totalSize = GetTotalSize(plotList);
+            const canvasWidth = width - marginRight - marginLeft - spacing * plotList.length;
+            const scaler = canvasWidth / totalSize;
+
+            // Declare the x (horizontal position) scale.
+            const x = d3.scaleLinear()
+                .domain([0, totalSize])
+                .range([marginLeft, width - marginRight]);
+
+            // Declare the y (vertical position) scale.
+            const y = d3.scaleLinear()
+                .domain([0, 1])
+                .range([height - marginBottom, marginTop]);
+
+            // Create the SVG container.
+            const svg = d3.create("svg")
+                .attr(wStr, width)
+                .attr(GetH(), height);
+
+            // Add the x-axis.
+            svg.append("g")
+                .attr("transform", `translate(0,${height - marginBottom})`)
+                .call(d3.axisBottom(x));
+
+            // Create Tooltip
+            const div = d3.select("body").append("div")
+                .attr("class", "btn btn-outline-primary")
+                //.style("max-width", "20rem")
+                .style("position", "absolute")
+                .style("opacity", 0);
+
+            // Select Card Title for Dynamic Content 
+            const tooltipCardTitle = d3.select("#tooltipCardTitle");
+
+            console.log(`tooltipCardTitle: ${JSON.stringify(tooltipCardTitle)}`);
+
+            function getRelativeXY(x, y, svg, element) {
+                var p = svg.createSVGPoint();
+                var ctm = element.getCTM();
+                p.x = x;
+                p.y = y;
+                return p.matrixTransform(ctm);
+            }
+
+            for (let i = 0; i < plotList.length; i++) {
+
+                let plotItem = plotList[i];
+                const itemWidth = plotItem.size * scaler;
+                const tooltipPos = [currX + itemWidth / 2 + marginLeft + 30, height - marginBottom];
+
+
+                // const elemXY = svg.attr("transform").translate;
+                // console.log(`ElemXY: ${JSON.stringify(elemXY)}`)
+
+                const levelOpacity = 1 - (1 / (plotItem.level + .5));
+
+                // Append a path for the line.
+                svg.append('line')
+                    .style("stroke", colorOptions[plotItem.threshold ? 0 : 1])
+                    .style("stroke-width", plotItem.size * scaler)
+                    .attr('opacity', levelOpacity)
+                    .attr("x1", currX + itemWidth / 2)
+                    .attr("y1", height - marginBottom)
+                    .attr("x2", currX + itemWidth / 2)
+                    .attr("y2", marginTop)
+                    .on('mouseover', function (d, i) {
+                        d3.select(this).transition()
+                            .duration(50)
+                            .attr('opacity', 1)
+                            //.attr("y1", height - marginBottom + 10)
+                            .attr("y2", marginTop - 10);
+                        //Makes the new div appear on hover:
+                        div.transition()
+                            .duration(50)
+                            .style("opacity", '1');
+
+                        div.html(plotItem.displayName)
+                            .style("left", (tooltipPos[0] + 45) + "px")
+                            .style("top", (tooltipPos[1] + 90) + "px");
+
+                        tooltipCardTitle.html(plotItem.displayName);
+                    })
+                    .on('mouseout', function (d, i) {
+                        d3.select(this).transition()
+                            .duration(50)
+                            .attr('opacity', levelOpacity)
+                            //.attr("y1", height - marginBottom)
+                            .attr("y2", marginTop);
+                        //Makes the new div disappear:
+                        div.transition()
+                            .duration(50)
+                            .style("opacity", 0);
+                    })
+                // .append("svg:title")
+                // .text(plotItem.displayName);
+
+                currX += itemWidth + spacing;
+            }
+
+            // Append the SVG element.
+            container.append(svg.node());
+
+        }
+    </script>
+    
+    <script>
+
+        function RemoveAllChildren() {
+            const containerElem = document.getElementById("container");
+            
+            while (containerElem.childNodes.length > 0){
+                containerElem.removeChild(containerElem.childNodes[0]);
+            }
+        }
+
+        document.getElementById("btnRemoveStripes").onclick = RemoveAllChildren;
+        
+        document.getElementById("btnRegenStripes").onclick = () => {
+            RemoveAllChildren();
+            CreateRootStripesElem();
+        }
+        
+        CreateRootStripesElem();
+    </script>
+
+    <script>
+        // --- Scratch Space ---
+        
         // Declare the x (horizontal position) scale.
         // const x = d3.scaleUtc()
         //     .domain([new Date("2023-01-01"), new Date("2024-01-01")])
         //     .range([marginLeft, width - marginRight]);
-
+    
         // Declare the x (horizontal position) scale.
         // const x = d3.scaleLinear()
         //     .domain([0, 100])
@@ -170,7 +326,7 @@
         // const y = d3.scaleLinear()
         //     .domain([0, 100])
         //     .range([height - marginBottom, marginTop]);
-
+    
         // Create the SVG container.
         // const svg = d3.create("svg")
         //     .attr(wStr, width)
@@ -185,164 +341,24 @@
         // svg.append("g")
         //     .attr("transform", `translate(${marginLeft},0)`)
         //     .call(d3.axisLeft(y));
-        
+    
         // Declare the line generator.
         // const line = d3.line()
         //     .x(d => d.lon)
         //     .y(d => d.lat);
-        
-        // const thickness = 3;
-        
-        // for (let i = 0; i < 100; i++) {
-        //    
-        //     var lineData = {"lon" : marginLeft + (i * thickness), "lat" : i }
-        //     var rando = d3.randomInt(2, 0);
-        //    
-        //     //console.log(`Current Rando: ${rando.call()}`);
-        //    
-        //     // Append a path for the line.
-        //     svg.append('line')
-        //         .style("stroke", colorOptions[rando.call()])
-        //         .style("stroke-width", thickness)
-        //         .attr("x1", lineData.lon)
-        //         .attr("y1", height - marginBottom)
-        //         .attr("x2", lineData.lon)
-        //         .attr("y2", marginTop);
-        // }
-        
-        const debug = false;
-        
-        const irGroup = GenerateIrGroup(3, 4, .97);
-        if (debug) {
-            Debug(irGroup, Object.keys({irGroup})[0]);
-        }
-
-        const collapsedGroup = CollapseIrGroup(irGroup);
-        if (debug) {
-            Debug(collapsedGroup, Object.keys({collapsedGroup})[0]);
-        }
-        
-        // const collapsedGroupStr = JSON.stringify(collapsedGroup);
-        // console.log(collapsedGroupStr);
-        // localStorage.setItem("collapsedGroup", collapsedGroupStr);
-        
-        const plotList = collapsedGroupToPlotList(collapsedGroup);
-        if (debug) {
-            Debug(plotList, Object.keys({plotList})[0]);
-        }
-        
-        // const plotListStr = JSON.stringify(plotList);
-        // console.log(plotListStr);
-        // localStorage.setItem("plotList", plotListStr);
-
-        const colorOptions = ["darkblue", "red"];
-        let currX = marginLeft;
-        const spacing = 0;
-        const verticalScaling = .05;
-        const totalSize = GetTotalSize(plotList);
-        const canvasWidth = width - marginRight - marginLeft - spacing * plotList.length;
-        const scaler =  canvasWidth / totalSize;
-        
-        const vertAnimScaleY1 = height - marginBottom * verticalScaling;
-        const vertAnimScaleY2 = marginBottom * verticalScaling;
-
-        // Declare the x (horizontal position) scale.
-        const x = d3.scaleLinear()
-            .domain([0, totalSize])
-            .range([marginLeft, width - marginRight]);
-
-        // Declare the y (vertical position) scale.
-        const y = d3.scaleLinear()
-            .domain([0, 1])
-            .range([height - marginBottom, marginTop]);
-
-        // Create the SVG container.
-        const svg = d3.create("svg")
-            .attr(wStr, width)
-            .attr(GetH(), height);
-
-        // Add the x-axis.
-        svg.append("g")
-            .attr("transform", `translate(0,${height - marginBottom})`)
-            .call(d3.axisBottom(x));
 
         // Add the y-axis.
         // svg.append("g")
         //     .attr("transform", `translate(${marginLeft},0)`)
         //     .call(d3.axisLeft(y));
-        
-        const div = d3.select("body").append("div")
-            .attr("class", "btn btn-outline-primary")
-            //.style("max-width", "20rem")
-            .style("position", "absolute")
-            .style("opacity", 0);
-        
-        const tooltipCardTitle = d3.select("#tooltipCardTitle");
 
-        console.log(`tooltipCardTitle: ${JSON.stringify(tooltipCardTitle)}`);
-        
-        for (let i = 0; i < plotList.length; i++) {
+        // const vertAnimScaleY1 = height - marginBottom * verticalScaling;
+        // const vertAnimScaleY2 = marginBottom * verticalScaling;
 
-            let plotItem = plotList[i];
-            const itemWidth = plotItem.size * scaler;
-            const tooltipPos = [currX + itemWidth / 2 + marginRight + 30, height - marginBottom];
-            
-            const levelOpacity = 1 - (1 / (plotItem.level + .5));
-            
-            // Append a path for the line.
-            svg.append('line')
-                .style("stroke", colorOptions[plotItem.threshold ? 0 : 1])
-                .style("stroke-width", plotItem.size * scaler)
-                .attr('opacity', levelOpacity)
-                .attr("x1", currX + itemWidth / 2)
-                .attr("y1", height - marginBottom)
-                .attr("x2", currX + itemWidth / 2)
-                .attr("y2", marginTop)
-                .on('mouseover', function (d, i) {
-                    d3.select(this).transition()
-                        .duration(50)
-                        .attr('opacity', 1)
-                        .attr("y1", height - marginBottom + 10)
-                        .attr("y2", marginTop - 10);
-                    //Makes the new div appear on hover:
-                    div.transition()
-                        .duration(50)
-                        .style("opacity", '1');
-
-                    // var absoluteMousePos = d3.pointer(d);
-                    // div.html(plotItem.displayName)
-                    //     .style("left", (absoluteMousePos[0] + 10) + "px")
-                    //     .style("top", (absoluteMousePos[1] - 15) + "px");
-                    
-                    div.html(plotItem.displayName)
-                        .style("left", tooltipPos[0] + "px")
-                        .style("top", (tooltipPos[1] + 90) + "px");
-
-                    tooltipCardTitle.html(plotItem.displayName);
-                    
-                    
-                    
-                })
-                .on('mouseout', function (d, i) {
-                    d3.select(this).transition()
-                        .duration(50)
-                        .attr('opacity', levelOpacity)
-                        .attr("y1", height - marginBottom)
-                        .attr("y2", marginTop);
-                    //Makes the new div disappear:
-                    div.transition()
-                        .duration(50)
-                        .style("opacity", 0);
-                })
-                // .append("svg:title")
-                // .text(plotItem.displayName);
-
-            currX += itemWidth + spacing;
-        }
-
-        // Append the SVG element.
-        container.append(svg.node());
-
+        // var absoluteMousePos = d3.pointer(d);
+        // div.html(plotItem.displayName)
+        //     .style("left", (absoluteMousePos[0] + 10) + "px")
+        //     .style("top", (absoluteMousePos[1] - 15) + "px");
     </script>
 
 </body>
