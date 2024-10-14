@@ -116,17 +116,32 @@
     </div>
     <!-- End Navbar -->
 
-    <div class="container">
-        <div id="containerRoot"></div>
+    <div class="mt-3 ms-4 mb-4">
+        <h3>Randomly Generated Decision Stripes</h3>
     </div>
     
-    <div class="container">
-        <div id="containerChild1"></div>
+    <div class="">
+        <div id="container-stripes-0"></div>
+    </div>
+
+    <div class="">
+        <div id="container-stripesConnector-0-1"></div>
+    </div>
+    
+    <div class="">
+        <div id="container-stripes-1"></div>
+    </div>
+
+    <div class="">
+        <div id="container-stripesConnector-1-2"></div>
+    </div>
+
+    <div class="">
+        <div id="container-stripes-2"></div>
     </div>
     
     
-    
-    <div class="container mt-3 d-flex flex-row flex-grow-1 justify-content-start column-gap-2">
+    <div class="mt-4 ms-4 me-3 d-flex flex-row flex-grow-1 justify-content-start column-gap-2">
         <!-- Card Example -->
         <div class="card text-white bg-primary mb-3" style="max-width: 20rem;">
             <div class="card-header">Decision Space</div>
@@ -144,7 +159,7 @@
             <button type="button"
                     id="btnRemoveStripes"
                     class="btn btn-danger">
-                Remove Stripes
+                Close Expansion
             </button>
         </div>
     </div>
@@ -156,7 +171,148 @@
     <script src="js/irGroups.js"></script>
 
     <script>
+
+        const blueGradient = d3.quantize(d3.interpolateHcl("darkblue", "lightblue"), 10);
+        const redColor = "red";
+        const blueColor = "darkblue";
+        const colorOptions = ['#011526', '#dc3545'];
+        const spacing = -0.1;
         
+        const onMouseOverDispatch = d3.dispatch('onMouseOver');
+        const stripesLevelsCount = 2;
+        const svgParamsStripes = {
+            // Declare the chart dimensions and margins.
+            width : 800,
+            height : 300,
+            marginTop : 0,
+            marginRight : 25,
+            marginBottom : 0,
+            marginLeft : 25,
+        };
+        const svgParamsConnector = {
+            // Declare the chart dimensions and margins.
+            width : 800,
+            height : 150,
+            marginTop : 0,
+            marginRight : 25,
+            marginBottom : 0,
+            marginLeft : 25,
+        };
+        
+        const initStripesPlotDataList = () => {
+            const dataList = []
+            for (let i = 0; i < stripesLevelsCount; i++) {
+                dataList.push([]);
+            }
+            return dataList;
+        };
+
+        const initConnectionsPlotDataList = () => {
+            const dataList = []
+            for (let i = 0; i < stripesLevelsCount - 1; i++) {
+                dataList.push([]);
+            }
+            return dataList;
+        };
+
+        const stripesPlotDataList = initStripesPlotDataList();
+        const connectionsPlotDataList = initConnectionsPlotDataList();
+        
+        const initStripesElems = () => {
+            const elems = []
+            for (let i = 0; i < stripesLevelsCount; i++) {
+                const elem = document.getElementById(GetStripesContainerName(i));
+                elems.push(elem);
+            }
+            return elems;
+        };
+        
+        const initConnectorsElems = () => {
+            const elems = []
+            for (let i = 0; i < stripesLevelsCount - 1; i++) {
+                const elem = document.getElementById(GetStripesConnectorName(i));
+                elems.push(elem);
+            }
+            return elems;
+        };
+        
+        const stripesElems = initStripesElems();
+        const connectorsElems = initConnectorsElems();
+
+        function GetStripesContainerName(elemLevel = 0){
+            return `container-stripes-${elemLevel}`;
+        }
+
+        function GetStripesConnectorName(elemLevelTop = 0){
+            return `container-stripesConnector-${elemLevelTop}-${elemLevelTop + 1}`;
+        }
+
+        function GetStripeId(displayName, elemLevel){
+            return `${displayName}-${elemLevel}`
+        }
+
+        function GetConnectorId(displayName, elemLevelTop){
+            return `${displayName}-${elemLevelTop}-${elemLevelTop + 1}`
+        }
+
+        function CreateStripePlotData(plotItem, elemLevel, itemWidth, currX, height, marginTop, marginBottom, color, opacity){
+            return {
+                x1 : currX,
+                y1 : height - marginBottom,
+                x2 : currX + itemWidth,
+                y2 : marginTop,
+                id : GetStripeId(plotItem.displayName, elemLevel),
+                nodeId : plotItem.displayName,
+                color : color, 
+                opacity : opacity
+            }
+        }
+
+        function CreateConnectionPlotData(topPlotData, bottomPlotData, topElemLevel){
+            return {
+                x1 : bottomPlotData.x1,
+                y1 : svgParamsConnector.height - 1,
+                x2 : topPlotData.x1,
+                y2 : 1,
+                x3 : topPlotData.x2,
+                y3 : 1,
+                x4 : bottomPlotData.x2,
+                y4 : svgParamsConnector.height - 1,
+                id : GetConnectorId(topPlotData.nodeId, topElemLevel),
+                nodeId : topPlotData.nodeId,
+                color : topPlotData.color,
+                opacity : topPlotData.opacity
+            }
+        }
+
+        function ClearStripesPlotData(elemLevel){
+            stripesPlotDataList[elemLevel] = [];
+        }
+
+        function ClearConnectionsPlotData(elemLevel){
+            connectionsPlotDataList[elemLevel] = [];
+        }
+
+        function AddStripesPlotData(elemLevel, stripesPlotData){
+            const levelList = stripesPlotDataList[elemLevel];
+
+            for (let i = 0; i < levelList.length; i++) {
+                const plotData = levelList[i];
+                if(plotData.id === stripesPlotData.id) {
+                    return; }
+            }
+
+            stripesPlotDataList[elemLevel].push(stripesPlotData);
+        }
+        
+        // General Helper Functions
+        function RemoveAllChildren(containerElem) {
+            while (containerElem.childNodes.length > 0){
+                containerElem.removeChild(containerElem.childNodes[0]);
+            }
+        }
+        
+        // App Data Generation
         function GeneratePlotList() {
             const debug = false;
 
@@ -177,12 +333,6 @@
             
             return plotList;
         }
-
-        function RemoveAllChildren(containerElem) {
-            while (containerElem.childNodes.length > 0){
-                containerElem.removeChild(containerElem.childNodes[0]);
-            }
-        }
         
         function GetSiblingPlotList(plotList, parentGroupStr){
             const siblingPlotList = [];
@@ -195,19 +345,98 @@
             return siblingPlotList;
         }
         
-        function CreateStripesElem(plotList, parentElem, isRoot = false) {
+        function CreateConnectionsPlotDataList(elemTopLevel = 0){
+            
+            if (elemTopLevel >= stripesLevelsCount){
+                return;
+            }
+            
+            const topList = stripesPlotDataList[elemTopLevel];
+            const bottomList = stripesPlotDataList[elemTopLevel + 1];
+            
+            const connectorList = [];
+
+            for (let i = 0; i < topList.length; i++) {
+                const topItem = topList[i];
+                for (let j = 0; j < bottomList.length; j++) {
+                    const bottomItem = bottomList[j];
+                    if (topItem.nodeId === bottomItem.nodeId) {
+                        connectorList.push(CreateConnectionPlotData(topItem, bottomItem, elemTopLevel));
+                    }
+                }
+            }
+            
+            connectionsPlotDataList[elemTopLevel] = connectorList;
+        }
+        
+        function GetPolygonArrayStr(connectorPlotData){
+            return `${connectorPlotData.x1},${connectorPlotData.y1} ${connectorPlotData.x2},${connectorPlotData.y2} ${connectorPlotData.x3},${connectorPlotData.y3} ${connectorPlotData.x4},${connectorPlotData.y4}`;
+        }
+        
+        function DrawConnectorList(elemLevelTop = 0){
+            
+            const plotDataList = connectionsPlotDataList[elemLevelTop];
+            const svg = CreateConnectorSvg(elemLevelTop);
+            
+            for (let i = 0; i < plotDataList.length; i++) {
+                const plotData = plotDataList[i];
+                const poly = GetPolygonArrayStr(plotData);
+
+                svg.append("polygon")
+                    .attr("points", poly)
+                    //.attr("stroke", plotData.color)
+                    //.attr("stroke-width", 0)
+                    .attr("fill", plotData.color)
+                    .attr('opacity', plotData.opacity);
+            }
+        }
+
+        // Build DOM
+        // Create Tooltip Elem
+        const div = d3.select("body").append("div")
+            .attr("class", "badge rounded-pill bg-dark")
+            //.style("max-width", "20rem")
+            .style("position", "absolute")
+            .style("opacity", 0);
+
+        function CreateConnectorSvg(elemLevelTop = 0){
+
+            const containerName = GetStripesConnectorName(elemLevelTop);
+            const parentElem = document.getElementById(containerName);
+
+            RemoveAllChildren(parentElem);
+
+            // Declare the x (horizontal position) scale.
+            const x = d3.scaleLinear()
+                .domain([0, 1])
+                .range([svgParamsConnector.marginLeft, svgParamsConnector.width - svgParamsConnector.marginRight]);
+
+            // Declare the y (vertical position) scale.
+            const y = d3.scaleLinear()
+                .domain([0, 1])
+                .range([svgParamsConnector.height - svgParamsConnector.marginBottom, svgParamsConnector.marginTop]);
+
+            // Create the SVG container.
+            const svg = d3.create("svg")
+                .attr(wStr, svgParamsConnector.width)
+                .attr(GetH(), svgParamsConnector.height);
+
+            // Append the SVG element.
+            parentElem.append(svg.node());
+            return svg;
+        }
+        
+        function CreateStripesElem(plotList, parentElem, elemLevel = 0) {
             
             // Declare the chart dimensions and margins.
-            const width = 800;
-            const height = 400;
-            const marginTop = 50;
-            const marginRight = 20;
-            const marginBottom = 50;
-            const marginLeft = 5;
+            const width = svgParamsStripes.width;
+            const height = svgParamsStripes.height;
+            const marginTop = svgParamsStripes.marginTop;
+            const marginRight = svgParamsStripes.marginRight;
+            const marginBottom = svgParamsStripes.marginBottom;
+            const marginLeft = svgParamsStripes.marginLeft;
             
-            const colorOptions = ["darkblue", "red"];
-            const spacing = -0.1;
-            const verticalScaling = .05;
+            
             const totalSize = GetTotalSize(plotList);
             const canvasWidth = width - marginRight - marginLeft - spacing * plotList.length;
             const scaler = canvasWidth / totalSize;
@@ -234,66 +463,73 @@
                 .attr("transform", `translate(0,${height - marginBottom})`)
                 .call(d3.axisBottom(x));
 
-            // Create Tooltip
-            const div = d3.select("body").append("div")
-                .attr("class", "btn btn-outline-primary")
-                //.style("max-width", "20rem")
-                .style("position", "absolute")
-                .style("opacity", 0);
-
+            
             // Select Card Title for Dynamic Content 
             const tooltipCardTitle = d3.select("#tooltipCardTitle");
 
             console.log(`tooltipCardTitle: ${JSON.stringify(tooltipCardTitle)}`);
 
             function getRelativeXY(x, y, svg, element) {
-                var p = svg.createSVGPoint();
-                var ctm = element.getCTM();
+                const p = svg.createSVGPoint();
+                const ctm = element.getCTM();
                 p.x = x;
                 p.y = y;
                 return p.matrixTransform(ctm);
             }
 
             function getAbsoluteXY(element) {
-                var viewportElement = document.documentElement;
-                var box = element.getBoundingClientRect();
-                var scrollLeft = viewportElement.scrollLeft;
-                var scrollTop = viewportElement.scrollTop;
-                var x = box.left + scrollLeft;
-                var y = box.top + scrollTop;
+                const viewportElement = document.documentElement;
+                const box = element.getBoundingClientRect();
+                const scrollLeft = viewportElement.scrollLeft;
+                const scrollTop = viewportElement.scrollTop;
+                const x = box.left + scrollLeft;
+                const y = box.top + scrollTop;
                 return {"x": x, "y": y}
             }
 
-            const viewportElem = document.getElementById("containerRoot");
-            const viewPortOffset = getAbsoluteXY(viewportElem)['x'];
-            console.log(`Clicked Absolute Pos: ${JSON.stringify(viewPortOffset)} => ${viewportElem}`)
+            const viewportElem = document.getElementById(GetStripesContainerName(elemLevel));
+            const viewPortOffset = getAbsoluteXY(viewportElem);
+            // console.log(`Clicked Absolute Pos: ${JSON.stringify(viewPortOffset)} => ${viewportElem}`)
 
+            ClearStripesPlotData(elemLevel);
+            ClearConnectionsPlotData(elemLevel);
+            
             for (let i = 0; i < plotList.length; i++) {
 
                 let plotItem = plotList[i];
                 const itemWidth = plotItem.size * scaler;
-                const tooltipPos = [currX + itemWidth / 2 + marginLeft + viewPortOffset - 25, height - marginBottom + 100];
+                const tooltipPos = [currX + itemWidth / 2 - marginLeft + viewPortOffset['x'], height + viewPortOffset['y'] - marginBottom + 1];
+                // const tooltipPos = [currX + itemWidth / 2 + marginLeft + viewPortOffset - 25, height - marginBottom + 100];
                 
                 // const elemXY = svg.attr("transform").translate;
                 // console.log(`ElemXY: ${JSON.stringify(elemXY)}`)
 
                 const levelOpacity = 1 - (1 / (plotItem.level + .5));
 
+                const stripeColor = plotItem.threshold ? blueColor : redColor;
+                // const stripeColor = plotItem.threshold ? blueGradient[6 - plotItem.level] : redColor;
+                // const stripeColor = colorOptions[plotItem.threshold ? blueGradient[plotItem.level] : 1];
+                const stripePlotData = CreateStripePlotData(plotItem, elemLevel, itemWidth, currX, height, marginTop, marginBottom, stripeColor, levelOpacity);
+                AddStripesPlotData(elemLevel, stripePlotData);
+
                 // Append a path for the line.
                 svg.append('line')
-                    .style("stroke", colorOptions[plotItem.threshold ? 0 : 1])
+                    .style("stroke", stripeColor)
                     .style("stroke-width", plotItem.size * scaler)
                     .attr('opacity', levelOpacity)
                     .attr("x1", currX + itemWidth / 2)
                     .attr("y1", height - marginBottom)
                     .attr("x2", currX + itemWidth / 2)
                     .attr("y2", marginTop)
+                    .attr("id", GetStripeId(plotItem.displayName, elemLevel))
                     .on('mouseover', function (d, i) {
                         d3.select(this).transition()
                             .duration(50)
                             .attr('opacity', 1)
                             //.attr("y1", height - marginBottom + 10)
                             .attr("y2", marginTop - 10);
+                        
+                        
                         //Makes the new div appear on hover:
                         div.transition()
                             .duration(50)
@@ -304,6 +540,9 @@
                             .style("top", tooltipPos[1] + "px");
 
                         tooltipCardTitle.html(plotItem.displayName);
+
+                        // d3.selectAll('line').dispatch('onMouseOver', [false, false, {'displayName' : plotItem.displayName}]);
+                        // onMouseOverDispatch.call('onMouseOver', this,{displayName : plotItem.displayName});
                     })
                     .on('mouseout', function (d, i) {
                         d3.select(this).transition()
@@ -317,20 +556,40 @@
                             .style("opacity", 0);
                     })
                     .on('click', function (event, d, i){
-                        if (isRoot){
-                            const containerChild1 = document.getElementById("containerChild1");
-                            RemoveAllChildren(containerChild1);
+                        if (elemLevel === 0){
+                            const bottomElem = document.getElementById(GetStripesContainerName(elemLevel + 1));
+                            RemoveAllChildren(bottomElem);
                             const siblingList = GetSiblingPlotList(plotList, plotItem.parentGroup);
-                            CreateStripesElem(siblingList, containerChild1, false)
+                            CreateStripesElem(siblingList, bottomElem, elemLevel + 1);
+                            
+                            console.log(connectionsPlotDataList[elemLevel])
+                            DrawConnectorList(elemLevel);
                         }
-                        
                     })
+                    
+                // onMouseOverDispatch
+                //     .on('onMouseOver', function (event) {
+                //         const argDisplayName = arguments["0"]['displayName'];
+                //         console.log(`onMouseOverEvent => ${JSON.stringify(arguments)} => ${argDisplayName}`)
+                //         if (argDisplayName === plotItem.displayName){
+                //             console.log(`OnMouseOver! => ${argDisplayName}`);
+                //             d3.select(this).transition()
+                //                 .duration(50)
+                //                 .attr('opacity', 1)
+                //                 //.attr("y1", height - marginBottom + 10)
+                //                 .attr("y2", marginTop - 10);
+                //         }
+                //     })
                 // .append("svg:title")
                 // .text(plotItem.displayName);
-
+                
                 currX += itemWidth + spacing;
             }
-
+            
+            if (elemLevel > 0){
+                CreateConnectionsPlotDataList(elemLevel - 1);
+            }
+            
             // Append the SVG element.
             parentElem.append(svg.node());
 
@@ -339,21 +598,23 @@
     
     <script>
 
-        const containerRoot = document.getElementById("containerRoot");
-        const containerChild1 = document.getElementById("containerChild1");
+        const containerRoot = document.getElementById(GetStripesContainerName(0));
+        const containerChild1 = document.getElementById(GetStripesContainerName(1));
         
         document.getElementById("btnRemoveStripes").onclick = () => {
-            RemoveAllChildren(containerRoot);
+            //RemoveAllChildren(containerRoot);
             RemoveAllChildren(containerChild1);
         }
         
         document.getElementById("btnRegenStripes").onclick = () => {
             RemoveAllChildren(containerRoot);
             RemoveAllChildren(containerChild1);
-            CreateStripesElem(GeneratePlotList(), containerRoot, true);
+            CreateStripesElem(GeneratePlotList(), containerRoot, 0);
         }
         
-        CreateStripesElem(GeneratePlotList(), containerRoot, true);
+        CreateStripesElem(GeneratePlotList(), containerRoot, 0);
+        
+        CreateConnectorSvg(0);
     </script>
 
     <script>
@@ -406,6 +667,28 @@
         // div.html(plotItem.displayName)
         //     .style("left", (absoluteMousePos[0] + 10) + "px")
         //     .style("top", (absoluteMousePos[1] - 15) + "px");
+
+
+        // function GetPointArrayFromConnectorData(elemLevelTop){
+        //     const dataList = [];
+        //     const data = connectionsPlotDataList[elemLevelTop];
+        //     for (let i = 0; i < data.length; i++) {
+        //         dataList.push([])
+        //     }
+        // }
+
+        // function AddConnectionsPlotData(elemLevel, connectionsPlotData){
+        //     const levelList = connectionsPlotDataList[elemLevel];
+        //
+        //     for (let i = 0; i < levelList.length; i++) {
+        //         const plotData = levelList[i];
+        //         if(plotData.id === connectionsPlotData.id) {
+        //             return; }
+        //     }
+        //
+        //     connectionsPlotDataList[elemLevel].push(connectionsPlotData);
+        // }
+        
     </script>
 
 </body>
