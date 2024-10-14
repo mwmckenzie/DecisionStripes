@@ -562,7 +562,7 @@
                             const siblingList = GetSiblingPlotList(plotList, plotItem.parentGroup);
                             CreateStripesElem(siblingList, bottomElem, elemLevel + 1);
                             
-                            console.log(connectionsPlotDataList[elemLevel])
+                            // console.log(connectionsPlotDataList[elemLevel])
                             DrawConnectorList(elemLevel);
                         }
                     })
@@ -604,12 +604,14 @@
         document.getElementById("btnRemoveStripes").onclick = () => {
             //RemoveAllChildren(containerRoot);
             RemoveAllChildren(containerChild1);
+            CreateConnectorSvg(0);
         }
         
         document.getElementById("btnRegenStripes").onclick = () => {
             RemoveAllChildren(containerRoot);
             RemoveAllChildren(containerChild1);
             CreateStripesElem(GeneratePlotList(), containerRoot, 0);
+            CreateConnectorSvg(0);
         }
         
         CreateStripesElem(GeneratePlotList(), containerRoot, 0);
