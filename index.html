@@ -147,7 +147,7 @@
             <div class="card-header">Decision Space</div>
             <div class="card-body">
                 <h4 class="card-title" id="tooltipCardTitle">Hover With Mouse To Highight</h4>
-                <p class="card-text">Indicates the Decision Space of the Currently Highlighted Stripe</p>
+                <p class="card-text">Indicates the <span class="text-info">Decision Space</span> of the highlighted <span class="text-warning">Stripe</span> in the top <span class="text-success">Bar</span></p>
             </div>
         </div>
         <div class="d-flex flex-column justify-content-start row-gap-2">
@@ -538,9 +538,11 @@
                         div.html(plotItem.displayName)
                             .style("left", tooltipPos[0] + "px")
                             .style("top", tooltipPos[1] + "px");
-
-                        tooltipCardTitle.html(plotItem.displayName);
-
+                        
+                        if (elemLevel === 0){
+                            tooltipCardTitle.html(plotItem.parentGroup);
+                        }
+                        
                         // d3.selectAll('line').dispatch('onMouseOver', [false, false, {'displayName' : plotItem.displayName}]);
                         // onMouseOverDispatch.call('onMouseOver', this,{displayName : plotItem.displayName});
                     })
